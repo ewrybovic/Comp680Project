@@ -107,7 +107,7 @@ ipython_config.py
 #   pdm stores project-wide configurations in .pdm.toml, but it is recommended to not include it
 #   in version control.
 #   https://pdm.fming.dev/#use-with-ide
-.pdm.toml
+*.pdm.toml
 
 # PEP 582; used by e.g. github.com/David-OConnor/pyflow and github.com/pdm-project/pdm
 __pypackages__/
@@ -120,8 +120,8 @@ celerybeat.pid
 *.sage.py
 
 # Environments
-.env
-.venv
+*.env
+*.venv
 env/
 venv/
 ENV/
@@ -129,29 +129,29 @@ env.bak/
 venv.bak/
 
 # Spyder project settings
-.spyderproject
-.spyproject
+*.spyderproject
+*.spyproject
 
 # Rope project settings
-.ropeproject
+*.ropeproject
 
 # mkdocs documentation
 /site
 
 # mypy
-.mypy_cache/
-.dmypy.json
+*.mypy_cache/
+*.dmypy.json
 dmypy.json
 
 # Pyre type checker
-.pyre/
+*.pyre/
 
 # pytype static type analyzer
-.pytype/
+*.pytype/
 
 # Cython debug symbols
 cython_debug/
 
 # Tensorflow data models
-.data-00000-of-00001
+*.data-00000-of-00001
 
