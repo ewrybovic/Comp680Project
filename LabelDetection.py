@@ -1,14 +1,16 @@
 import os
+import cv2
+
 import tensorflow as tf
 import numpy as np
-from PIL import Image
+
 from object_detection.utils import label_map_util
 from object_detection.utils import visualization_utils as viz_utils
 from object_detection.builders import model_builder
 from object_detection.utils import config_util
 import matplotlib.pyplot as plt
 
-class ModelDetection:
+class LabelDetection:
     def __init__(self) -> None:
         
         self.PATH_TO_MODEL_DIR = "training\\model\\"
@@ -27,14 +29,12 @@ class ModelDetection:
         ckpt.restore(self.PATH_TO_CKPT).expect_partial()
 
     def detect_label(self, image):
+        min_thresh = 0.5
         image, shapes = self.detection_model.preprocess(image)
         prediction_dict = self.detection_model.predict(image, shapes)
         detections = self.detection_model.postprocess(prediction_dict, shapes)
 
         num_detections = int(detections.pop('num_detections'))
-        print("Num detections: " + str(num_detections))
-
-
         detections = {key: value[0, :num_detections].numpy()
                     for key, value in detections.items()}
         detections['num_detections'] = num_detections
@@ -46,25 +46,31 @@ class ModelDetection:
         image_np_with_detections = image_np.copy()
 
         viz_utils.visualize_boxes_and_labels_on_image_array(
-                image_np_with_detections,
-                detections['detection_boxes'],
-                detections['detection_classes']+label_id_offset,
-                detections['detection_scores'],
-                self.category_index,
-                use_normalized_coordinates=True,
-                max_boxes_to_draw=200,
-                min_score_thresh=.30,
-                agnostic_mode=False)
+                    image_np_with_detections,
+                    detections['detection_boxes'],
+                    detections['detection_classes']+label_id_offset,
+                    detections['detection_scores'],
+                    self.category_index,
+                    use_normalized_coordinates=True,
+                    max_boxes_to_draw=5,
+                    min_score_thresh=min_thresh,
+                    agnostic_mode=False)
 
-        plt.figure()
-        plt.imshow(image_np_with_detections)
+        plt.imshow(cv2.cvtColor(image_np_with_detections, cv2.COLOR_BGR2RGB))
+        plt.show()
         plt.savefig("image_np_with_detections")
 
-if __name__ == '__main__':
-    wrapper = ModelDetection()
+        for x in range(len(detections['detection_scores'])):
+            if detections['detection_scores'][x] >=min_thresh:
+                print(detections['detection_scores'][x])
+                print(detections['detection_boxes'][x])
+        
 
-    image_path = "training\\images\\eval-images\\label-12.jpg"
-    image_np = np.array(Image.open(image_path))
+if __name__ == '__main__':
+    wrapper = LabelDetection()
+
+    image_path = "test-images\\IMG_1153.jpg"
+    image_np = np.array(cv2.imread(image_path))
 
     input_tensor = tf.convert_to_tensor(np.expand_dims(image_np, 0), dtype=tf.float32)
 
