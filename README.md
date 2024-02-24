@@ -20,4 +20,4 @@ Tensorflow Object model used:
 To run the LabelDetection with TFLite
     Download the TFLite file from google drive: https://drive.google.com/file/d/1pClM18mbNuFsA36tdubX2K8nFdC_x9ph/view?usp=drive_link
     Put data into LabelDetectionModel\tflite-model
-
+    
