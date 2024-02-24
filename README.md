@@ -17,8 +17,7 @@ Tensorflow Object model used:
     This model compresses the image to 320x320, has a good balance between speed and accuracy
     need numpy 1.17.4
 
-
-To run the LabelDetection
-    Download the checkpoint data from google drive: https://drive.google.com/file/d/1siIss2n_vdZxqwwEaeoKTOfXV-gXBqI5/view?usp=drive_link
-    Put the data into LabelDetectionModel\checkpoint
+To run the LabelDetection with TFLite
+    Download the TFLite file from google drive: https://drive.google.com/file/d/1pClM18mbNuFsA36tdubX2K8nFdC_x9ph/view?usp=drive_link
+    Put data into LabelDetectionModel\tflite-model
 

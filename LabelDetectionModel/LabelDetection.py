@@ -1,78 +1,116 @@
-import os
+import os.path
 import cv2
 
 import tensorflow as tf
 import numpy as np
 
-from object_detection.utils import label_map_util
-from object_detection.utils import visualization_utils as viz_utils
-from object_detection.builders import model_builder
-from object_detection.utils import config_util
 import matplotlib.pyplot as plt
+
+from PIL import Image, ImageDraw
 
 class LabelDetection:
     def __init__(self) -> None:
-        
-        self.PATH_TO_CFG =  "pipeline.config"
-        self.PATH_TO_CKPT = "checkpoint\\ckpt-3"
-        self.PATH_TO_LABELS = "label_map.pbtxt"
-        self.category_index = label_map_util.create_category_index_from_labelmap(self.PATH_TO_LABELS,use_display_name=True)
 
-        # Load pipeline config and build a detection model
-        configs = config_util.get_configs_from_pipeline_file(self.PATH_TO_CFG)
-        model_config = configs['model']
-        self.detection_model = model_builder.build(model_config=model_config, is_training=False)
+        self.interpreter = tf.lite.Interpreter(model_path=os.path.join("tflite-model", "model.tflite"))
+        self.interpreter.allocate_tensors()
 
-        # Restore checkpoint
-        ckpt = tf.compat.v2.train.Checkpoint(model=self.detection_model)
-        ckpt.restore(self.PATH_TO_CKPT).expect_partial()
+        self.input_details = self.interpreter.get_input_details()
 
     def detect_label(self, image):
-        min_thresh = 0.4
-        image, shapes = self.detection_model.preprocess(image)
-        prediction_dict = self.detection_model.predict(image, shapes)
-        detections = self.detection_model.postprocess(prediction_dict, shapes)
+        min_thresh = 0.3
 
-        num_detections = int(detections.pop('num_detections'))
-        detections = {key: value[0, :num_detections].numpy()
-                    for key, value in detections.items()}
-        detections['num_detections'] = num_detections
+        # Check image size
+        image_resize = self.resize_image(image, False)
 
-        # detection_classes should be ints.
-        detections['detection_classes'] = detections['detection_classes'].astype(np.int64)
-
-        label_id_offset = 1
-        image_np_with_detections = image_np.copy()
-
-        viz_utils.visualize_boxes_and_labels_on_image_array(
-                    image_np_with_detections,
-                    detections['detection_boxes'],
-                    detections['detection_classes']+label_id_offset,
-                    detections['detection_scores'],
-                    self.category_index,
-                    use_normalized_coordinates=True,
-                    max_boxes_to_draw=5,
-                    min_score_thresh=min_thresh,
-                    agnostic_mode=False)
-
-        plt.imshow(cv2.cvtColor(image_np_with_detections, cv2.COLOR_BGR2RGB))
-        plt.show()
-        plt.savefig("image_np_with_detections")
-
-        for x in range(len(detections['detection_scores'])):
-            if detections['detection_scores'][x] >=min_thresh:
-                print(detections['detection_scores'][x])
-                print(detections['detection_boxes'][x])
+        image_tensor = np.float32(image_resize)
+        image_tensor = np.expand_dims(image_tensor, 0)
         
+        self.interpreter.set_tensor(self.input_details[0]['index'], image_tensor)
+
+        self.interpreter.invoke()
+
+        scores = self.get_output_tensor(0)
+        boxes = self.get_output_tensor(1)
+        count = int(self.get_output_tensor(2))
+
+        results = []
+        for i in range(count):
+            if scores[i] >= min_thresh:
+                result = {
+                    'bounding_box': boxes[i],
+                    'score': scores[i]
+                }
+                results.append(result)
+
+        print(results)
+
+        image = self.draw_bounding_box(image, results)
+
+        cv2.imwrite("image_detections.jpg", image)
+        
+
+    def get_output_tensor(self, index):
+        output_details = self.interpreter.get_output_details()[index]
+        tensor = np.squeeze(self.interpreter.get_tensor(output_details['index']))
+        return tensor
+
+    def convert_to_tensor(self, image):
+        image_np = np.array(image)
+        return tf.convert_to_tensor(np.expand_dims(image_np, 0), dtype=tf.float32)
+
+    def resize_image(self, image, set_borders):
+        size = image.shape
+        vertical_border = 0
+        horizontal_border = 0
+        print(size)
+        
+        if size[0] != 640 or size[1] != 640:
+            
+            if set_borders:
+                # Check if horizontal or vertical bar is needed to be added by checking apect ratio(640x640 is 1 aspect ratio)
+                if 1 >= size[0]/size[1]:
+                    vertical_border = int((size[1]-size[0])/2)
+                else:
+                    horizontal_border = int((size[0]-size[1])/2)
+
+                # Add border to image to get it to corerct aspect ratio 
+                image = cv2.copyMakeBorder(image, vertical_border, vertical_border, horizontal_border, horizontal_border, cv2.BORDER_CONSTANT)
+
+            image = cv2.resize(image, (640,640), interpolation=cv2.INTER_LINEAR)
+
+        return image
+        
+    def draw_bounding_box(self, image, results):
+        (height, width, _) = image.shape
+
+        for result in results:
+            bounding_box = result['bounding_box']
+            score = str(result['score'])
+
+            y1, x1, y2, x2 = bounding_box
+
+            # to not draw the bounding box out of frame
+            x1 = int(max(1, x1*width))
+            x2 = int(min(width, x2*width))
+            y1 = int(max(1, y1*height))
+            y2 = int(min(height, y2*height))
+
+            print((x1, y1))
+            print((x2, y2))
+
+            cv2.rectangle(image, (x1,y1), (x2,y2), (255,0,0), 10)
+            cv2.putText(image, score, (x1, min(y1, height-20)), cv2.FONT_HERSHEY_SIMPLEX, 3,(0,0,255),5,cv2.LINE_AA)
+
+        return image
 
 if __name__ == '__main__':
     wrapper = LabelDetection()
 
-    image_path = "test-images\\IMG_1133.jpg"
-    image_np = np.array(cv2.imread(image_path))
+    #image_path = "test-images\\IMG_1133.jpg"
+    #image_np = np.array(cv2.imread(image_path))
 
-    input_tensor = tf.convert_to_tensor(np.expand_dims(image_np, 0), dtype=tf.float32)
-
-    wrapper.detect_label(input_tensor)
+    #input_tensor = tf.convert_to_tensor(np.expand_dims(image_np, 0), dtype=tf.float32)
+    image = cv2.imread("test-images\\IMG_1133.jpg")
+    wrapper.detect_label(image)
     
     print('Done')
