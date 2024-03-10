@@ -3,6 +3,7 @@
 Required Libraries
     OpenCV: pip install opencv-python
     Tensorflow: pip install tensorflow(If on windows, you need python 3.11)
+    pytesseract: follow instructions(https://www.educative.io/answers/how-to-extract-text-from-an-image-in-python)
 
 To label training images:
     pip install labelImg

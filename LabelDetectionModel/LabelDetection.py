@@ -47,6 +47,8 @@ class LabelDetection:
 
     def detect_label(self, image, debug = False):
         min_thresh = 0.4
+        top_score = 0
+        top_boxes = []
 
         # process the input image and convert to tensor
         input_tensor = self.preprocess_image(image)
@@ -62,11 +64,6 @@ class LabelDetection:
 
         # detection_classes should be ints.
         detections['detection_classes'] = detections['detection_classes'].astype(np.int64)
-
-        
-
-        top_score = 0
-        top_boxes = []
 
         # detections are ordered from greatest to least, so we only care about the first one
         if len(detections['detection_scores']) > 0 and detections['detection_scores'][0] >=min_thresh:
