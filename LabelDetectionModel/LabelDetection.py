@@ -26,11 +26,33 @@ class LabelDetection:
         # Restore checkpoint
         ckpt = tf.compat.v2.train.Checkpoint(model=self.detection_model)
         ckpt.restore(self.PATH_TO_CKPT).expect_partial()
+    
+    def preprocess_image(self, image):
+        # Convert to tensor
+        image_tensor = np.float32(image)
+        image_tensor = np.expand_dims(image_tensor, 0)
+        image_tensor = tf.convert_to_tensor(image_tensor)
 
-    def detect_label(self, image):
+        return image_tensor
+    
+    def crop_image(self, image, box):
+        print(box)
+        x1 = int(box[0] * image.shape[0])
+        y1 = int(box[1] * image.shape[1])
+
+        x2 = int(box[2] * image.shape[0])
+        y2 = int(box[3] * image.shape[1])
+
+        return image[x1:x2, y1:y2]
+
+    def detect_label(self, image, debug = False):
         min_thresh = 0.4
-        image, shapes = self.detection_model.preprocess(image)
-        prediction_dict = self.detection_model.predict(image, shapes)
+
+        # process the input image and convert to tensor
+        input_tensor = self.preprocess_image(image)
+
+        input_tensor, shapes = self.detection_model.preprocess(input_tensor)
+        prediction_dict = self.detection_model.predict(input_tensor, shapes)
         detections = self.detection_model.postprocess(prediction_dict, shapes)
 
         num_detections = int(detections.pop('num_detections'))
@@ -41,38 +63,47 @@ class LabelDetection:
         # detection_classes should be ints.
         detections['detection_classes'] = detections['detection_classes'].astype(np.int64)
 
-        label_id_offset = 1
-        image_np_with_detections = image_np.copy()
-
-        viz_utils.visualize_boxes_and_labels_on_image_array(
-                    image_np_with_detections,
-                    detections['detection_boxes'],
-                    detections['detection_classes']+label_id_offset,
-                    detections['detection_scores'],
-                    self.category_index,
-                    use_normalized_coordinates=True,
-                    max_boxes_to_draw=5,
-                    min_score_thresh=min_thresh,
-                    agnostic_mode=False)
-
-        plt.imshow(cv2.cvtColor(image_np_with_detections, cv2.COLOR_BGR2RGB))
-        plt.show()
-        plt.savefig("image_np_with_detections")
-
-        for x in range(len(detections['detection_scores'])):
-            if detections['detection_scores'][x] >=min_thresh:
-                print(detections['detection_scores'][x])
-                print(detections['detection_boxes'][x])
         
 
+        top_score = 0
+        top_boxes = []
+
+        # detections are ordered from greatest to least, so we only care about the first one
+        if len(detections['detection_scores']) > 0 and detections['detection_scores'][0] >=min_thresh:
+            top_score = detections['detection_scores'][0]
+            top_boxes = detections['detection_boxes'][0]
+
+        print(top_score)
+        print(top_boxes)
+        print(len(top_boxes))
+
+        cropped_image = self.crop_image(image, top_boxes)
+
+        if debug:
+            label_id_offset = 1
+            image_np_with_detections = image.copy()
+
+            viz_utils.visualize_boxes_and_labels_on_image_array(
+                        image_np_with_detections,
+                        detections['detection_boxes'],
+                        detections['detection_classes']+label_id_offset,
+                        detections['detection_scores'],
+                        self.category_index,
+                        use_normalized_coordinates=True,
+                        max_boxes_to_draw=5,
+                        min_score_thresh=min_thresh,
+                        agnostic_mode=False)
+
+            plt.imshow(cv2.cvtColor(image_np_with_detections, cv2.COLOR_BGR2RGB))
+            plt.savefig("image_np_with_detections")
+
+        return cropped_image
+        
 if __name__ == '__main__':
     wrapper = LabelDetection()
 
-    image_path = "test-images\\IMG_1133.jpg"
-    image_np = np.array(cv2.imread(image_path))
+    image_path = "test-images\\IMG_1153.jpg"
+    image = cv2.imread(image_path)
 
-    input_tensor = tf.convert_to_tensor(np.expand_dims(image_np, 0), dtype=tf.float32)
-
-    wrapper.detect_label(input_tensor)
-    
-    print('Done')
+    detected_label = wrapper.detect_label(image, debug=True)
+    cv2.imwrite("croppped_image.jpg", detected_label)
