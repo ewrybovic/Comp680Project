@@ -2,9 +2,7 @@ import cv2
 import numpy
 
 from pathlib import Path
-from PIL import Image
 from pytesseract import pytesseract
-from enum import Enum
 
 class LabelReader:
     def __init__(self, is_Windows = False) -> None:
@@ -15,29 +13,32 @@ class LabelReader:
 
     def process_text(self, text: str) -> dict:
         text = text.splitlines()
-        label_data = {
-            "Calories": -1,
-            "Total Fat": -1,
-            "Saturated Fat": -1,
-            "Trans Fat": -1,
-            "Polyunsaturated Fat": -1,
-            "Sodium": -1,
-            "Total Carbohydrate": -1,
-            "Dietary Fiber": -1,
-            "Total Sugars": -1,
-            "Protein": -1
-        }
+        label_data = {}
+
+        items_to_find = ["Calories",
+            "Total Fat",
+            "Saturated Fat",
+            "Trans Fat",
+            "Polyunsaturated Fat",
+            "Sodium",
+            "Total Carbohydrate",
+            "Dietary Fiber"
+            "Total Sugars",
+            "Protein"]
 
         # This is so unoptimized, but I have a kid and a job lol
         for line in text:
-            for key in label_data:
-                if key in line:
+            for item in items_to_find:
+                if item in line:
                     split = line.split(" ")
-                    num_words_in_key = len(key.split(" "))
+                    num_words_in_item = len(item.split(" "))
 
                     # Remove the mg or g from string, also gets o and O confused with 0
-                    value = int(split[num_words_in_key].replace('g','').replace('m','').replace('O','0'))
-                    label_data[key] = value
+                    value = int(split[num_words_in_item].replace('g','').replace('m','').replace('O','0'))
+                    label_data[item] = value
+
+                    # Remove found entry from the list
+                    items_to_find.remove(item)
 
         return label_data
 
