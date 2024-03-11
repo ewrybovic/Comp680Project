@@ -14,9 +14,9 @@ from object_detection.utils import config_util
 class LabelDetection:
     def __init__(self) -> None:
         
-        self.PATH_TO_CFG =  "pipeline.config"
-        self.PATH_TO_CKPT = "checkpoint\\ckpt-3"
-        self.PATH_TO_LABELS = "label_map.pbtxt"
+        self.PATH_TO_CFG =  str(Path.cwd() / "pipeline.config")
+        self.PATH_TO_CKPT = str(Path.cwd() / "checkpoint" / "ckpt-3")
+        self.PATH_TO_LABELS = str(Path.cwd() / "label_map.pbtxt")
         self.category_index = label_map_util.create_category_index_from_labelmap(self.PATH_TO_LABELS,use_display_name=True)
 
         # Load pipeline config and build a detection model
