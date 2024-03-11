@@ -152,6 +152,7 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 
+processed_image.jpg
 
 # Tensorflow data models
 *.data-00000-of-00001

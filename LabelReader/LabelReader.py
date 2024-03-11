@@ -6,13 +6,9 @@ from PIL import Image
 from pytesseract import pytesseract
 from enum import Enum
 
-class OperatingSystem(Enum):
-    WINDOWS = 1
-    MAC = 2
-
 class LabelReader:
-    def __init__(self, operating_system: OperatingSystem) -> None:
-        if operating_system == OperatingSystem.WINDOWS:
+    def __init__(self, is_Windows = False) -> None:
+        if is_Windows:
             # Point to the executable
             path_to_exe = 'D:\\Program Files\\Tesseract-OCR\\tesseract.exe'
             pytesseract.tesseract_cmd = path_to_exe
@@ -20,50 +16,48 @@ class LabelReader:
     def process_text(self, text: str) -> dict:
         text = text.splitlines()
         label_data = {
-            "Calories": 0,
-            "Total Fat": 0,
-            "Saturated Fat": 0,
-            "Trans Fat": 0,
-            "Polyunsaturated Fat": 0,
-            "Sodium": 0,
-            "Total Carbohydrate": 0,
-            "Dietary Fiber": 0,
-            "Total Sugars": 0,
-            "Protein": 0
+            "Calories": -1,
+            "Total Fat": -1,
+            "Saturated Fat": -1,
+            "Trans Fat": -1,
+            "Polyunsaturated Fat": -1,
+            "Sodium": -1,
+            "Total Carbohydrate": -1,
+            "Dietary Fiber": -1,
+            "Total Sugars": -1,
+            "Protein": -1
         }
 
+        # This is so unoptimized, but I have a kid and a job lol
         for line in text:
-            print(line)
+            for key in label_data:
+                if key in line:
+                    split = line.split(" ")
+                    num_words_in_key = len(key.split(" "))
+
+                    # Remove the mg or g from string, also gets o and O confused with 0
+                    value = int(split[num_words_in_key].replace('g','').replace('m','').replace('O','0'))
+                    label_data[key] = value
 
         return label_data
 
-    def read_label(self, image, debug=False) -> dict:
-        # Check if OpenCV image, convert to PIL
-        if isinstance(image, numpy.ndarray):
-            gry = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-            thr = cv2.adaptiveThreshold(gry, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY_INV, 15, 22)
-            
-            if debug:
-                cv2.imwrite("processed_image.jpg", thr)
+    def read_label(self, image: numpy.ndarray, debug=False) -> dict:
+
+        # Do some preprocessing
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        thr = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY_INV, 15, 22)
+        
+        if debug:
+            cv2.imwrite("processed_image.jpg", thr)
 
         label_data = self.process_text(pytesseract.image_to_string(thr))
         return label_data
-    
-    ''' TESTING THIS
-    def keras_read_label(self, image, debug = False):
-        
-        import keras_ocr
-        pipeline = keras_ocr.pipeline.Pipeline()
-
-        # return list of (word, box)
-        predition_groups = pipeline.recognize([image])
-
-        for word,_ in predition_groups[0]:
-            print(word)'''
 
 
 if __name__ == '__main__':
-    reader = LabelReader(OperatingSystem.WINDOWS)
+
+    # The way pytesseract has to be installed in windows makes windows point to the exe, but not for MAC/Linux
+    reader = LabelReader(is_Windows=True)
 
     image_path = str(Path.cwd() / "test_image" / "croppped_image.jpg")
     image = cv2.imread(image_path)
