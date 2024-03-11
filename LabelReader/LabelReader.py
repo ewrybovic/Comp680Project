@@ -59,7 +59,7 @@ if __name__ == '__main__':
     # The way pytesseract has to be installed in windows makes windows point to the exe, but not for MAC/Linux
     reader = LabelReader(is_Windows=True)
 
-    image_path = str(Path.cwd() / "test_image" / "croppped_image.jpg")
+    image_path = str(Path.cwd() / "test_image" / "test_image.jpg")
     image = cv2.imread(image_path)
 
     text = reader.read_label(image, debug=True)
