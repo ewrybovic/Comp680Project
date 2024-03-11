@@ -37,64 +37,36 @@ class LabelReader:
 
         return label_data
 
-    def read_label(self, image) -> dict:
+    def read_label(self, image, debug=False) -> dict:
         # Check if OpenCV image, convert to PIL
         if isinstance(image, numpy.ndarray):
-            color_coverted = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-            image = Image.fromarray(color_coverted)
+            gry = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+            thr = cv2.adaptiveThreshold(gry, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY_INV, 15, 22)
+            
+            if debug:
+                cv2.imwrite("processed_image.jpg", thr)
 
-        label_data = self.process_text(pytesseract.image_to_string(image))
+        label_data = self.process_text(pytesseract.image_to_string(thr))
         return label_data
+    
+    ''' TESTING THIS
+    def keras_read_label(self, image, debug = False):
+        
+        import keras_ocr
+        pipeline = keras_ocr.pipeline.Pipeline()
 
-    def test_read_label(self, img):
-        # Convert the image to gray scale
-        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        
-        # Performing OTSU threshold
-        ret, thresh1 = cv2.threshold(gray, 0, 255, cv2.THRESH_OTSU | cv2.THRESH_BINARY_INV)
-        
-        # Specify structure shape and kernel size. 
-        # Kernel size increases or decreases the area 
-        # of the rectangle to be detected.
-        # A smaller value like (10, 10) will detect 
-        # each word instead of a sentence.
-        rect_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (18, 18))
-        
-        # Applying dilation on the threshold image
-        dilation = cv2.dilate(thresh1, rect_kernel, iterations = 1)
-        
-        # Finding contours
-        contours, hierarchy = cv2.findContours(dilation, cv2.RETR_EXTERNAL, 
-                                                        cv2.CHAIN_APPROX_NONE)
-        
-        # Creating a copy of image
-        im2 = img.copy()
-        
-        
-        # Looping through the identified contours
-        # Then rectangular part is cropped and passed on
-        # to pytesseract for extracting text from it
-        # Extracted text is then written into the text file
-        for cnt in contours:
-            x, y, w, h = cv2.boundingRect(cnt)
-            
-            # Drawing a rectangle on copied image
-            rect = cv2.rectangle(im2, (x, y), (x + w, y + h), (0, 255, 0), 2)
-            
-            # Cropping the text block for giving input to OCR
-            cropped = im2[y:y + h, x:x + w]
-            
-            # Open the file in append mode
-            file = open("recognized.txt", "a")
-            
-            # Apply OCR on the cropped image
-            print(pytesseract.image_to_string(cropped)) 
+        # return list of (word, box)
+        predition_groups = pipeline.recognize([image])
+
+        for word,_ in predition_groups[0]:
+            print(word)'''
+
 
 if __name__ == '__main__':
     reader = LabelReader(OperatingSystem.WINDOWS)
 
-    image_path = str(Path.cwd() / "test_image" / "test_image.png")
+    image_path = str(Path.cwd() / "test_image" / "croppped_image.jpg")
     image = cv2.imread(image_path)
 
-    text = reader.test_read_label(image)
+    text = reader.read_label(image, debug=True)
     print(text)
