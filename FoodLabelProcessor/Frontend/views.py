@@ -16,7 +16,7 @@ from LabelDetectionModel import LabelDetection
 from LabelReader import LabelReader
 
 label_detection = LabelDetection()
-label_reader = LabelReader()
+label_reader = LabelReader(is_Windows=True)
 
 def home(request):
     return render(request, 'Frontend/home.html')
@@ -39,7 +39,8 @@ def analyze_image(request):
         
         cv2_image = cv2.imread(save_path)
         cropped_image = label_detection.detect_label(cv2_image, debug=True)
-        print(label_reader.read_label(cropped_image))
+        label_data = label_reader.read_label(cropped_image, debug=True)
+        print(label_data)
 
         # Store the image path in the session
         request.session['uploaded_image_path'] = os.path.join('uploads', image.name)
