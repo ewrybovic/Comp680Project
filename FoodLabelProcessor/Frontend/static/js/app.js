@@ -5,6 +5,7 @@ const captureButton = document.getElementById("capture");
 const retakeButton = document.getElementById("retake");
 const startButton = document.getElementById("start");
 const pauseButton = document.getElementById("pause");
+const analyzeButton = document.getElementById("analyze");
 
 let stream = null;
 
@@ -22,6 +23,7 @@ function manageStream(isStarting) {
         retakeButton.style.display = "none";
         startButton.style.display = "none";
         pauseButton.style.display = "inline-block";
+        analyzeButton.style.display = "none";
       })
       .catch(function (err) {
         console.log("An error occurred: " + err);
@@ -35,6 +37,7 @@ function manageStream(isStarting) {
     startButton.style.display = "inline-block";
     pauseButton.style.display = "none";
     retakeButton.style.display = "none"; // Ensure retake button is also managed correctly
+    analyzeButton.style.display = "none";
   }
 }
 
@@ -47,6 +50,7 @@ captureButton.addEventListener("click", function () {
   retakeButton.style.display = "inline-block";
   startButton.style.display = "none";
   pauseButton.style.display = "none";
+  analyzeButton.style.display = "inline-block";
 });
 
 // Start the video stream
@@ -71,3 +75,24 @@ window.onload = function () {
   retakeButton.style.display = "none";
   pauseButton.style.display = "none";
 };
+
+// Handle Analyze Label button click
+document.getElementById("analyze").addEventListener("click", function () {
+  canvas.toBlob(function (blob) {
+    const formData = new FormData();
+    formData.append("image", blob, "capture.jpg");
+    fetch("/analyze-image/", {
+      // Adjust the URL as needed
+      method: "POST",
+      body: formData,
+    })
+      .then((response) => {
+        if (response.ok) return response.json();
+        throw new Error("Network response was not ok.");
+      })
+      .then((data) => {
+        window.location.href = data.redirectURL; // Redirect the user
+      })
+      .catch((error) => console.error("Error:", error));
+  }, "image/jpeg");
+});

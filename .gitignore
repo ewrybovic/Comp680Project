@@ -159,3 +159,7 @@ cython_debug/
 
 # python virtual env
 myvenv/
+
+# server uploads
+uploads/*
+!uploads/.gitkeep
