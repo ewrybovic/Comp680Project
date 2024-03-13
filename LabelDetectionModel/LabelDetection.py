@@ -14,9 +14,11 @@ from object_detection.utils import config_util
 class LabelDetection:
     def __init__(self) -> None:
         
-        self.PATH_TO_CFG =  str(Path.cwd() / "pipeline.config")
-        self.PATH_TO_CKPT = str(Path.cwd() / "checkpoint" / "ckpt-3")
-        self.PATH_TO_LABELS = str(Path.cwd() / "label_map.pbtxt")
+        # TODO fix this, when running from view.py the CWD is different
+        self.PATH_TO_CFG =  "D:\\projects\\Comp680Project\\LabelDetectionModel\\pipeline.config"
+        self.PATH_TO_CKPT = "D:\\projects\\Comp680Project\\LabelDetectionModel\\checkpoint\\ckpt-3"
+        self.PATH_TO_LABELS = "D:\\projects\\Comp680Project\\LabelDetectionModel\\label_map.pbtxt"
+
         self.category_index = label_map_util.create_category_index_from_labelmap(self.PATH_TO_LABELS,use_display_name=True)
 
         # Load pipeline config and build a detection model
@@ -95,6 +97,8 @@ class LabelDetection:
             plt.imshow(cv2.cvtColor(image_np_with_detections, cv2.COLOR_BGR2RGB))
             plt.savefig("image_np_with_detections")
 
+            cv2.imwrite("cropped_image.jpg", cropped_image)
+
         return cropped_image
         
 if __name__ == '__main__':
@@ -104,4 +108,4 @@ if __name__ == '__main__':
     image = cv2.imread(image_path)
 
     detected_label = wrapper.detect_label(image, debug=True)
-    cv2.imwrite("croppped_image.jpg", detected_label)
+    cv2.imwrite("cropped_image.jpg", detected_label)
