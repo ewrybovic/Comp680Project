@@ -3,19 +3,20 @@ import cv2
 
 import tensorflow as tf
 import numpy as np
+import matplotlib.pyplot as plt
 
+from pathlib import Path
 from object_detection.utils import label_map_util
 from object_detection.utils import visualization_utils as viz_utils
 from object_detection.builders import model_builder
 from object_detection.utils import config_util
-import matplotlib.pyplot as plt
 
 class LabelDetection:
     def __init__(self) -> None:
         
-        self.PATH_TO_CFG =  "pipeline.config"
-        self.PATH_TO_CKPT = "checkpoint\\ckpt-3"
-        self.PATH_TO_LABELS = "label_map.pbtxt"
+        self.PATH_TO_CFG =  str(Path.cwd() / "pipeline.config")
+        self.PATH_TO_CKPT = str(Path.cwd() / "checkpoint" / "ckpt-3")
+        self.PATH_TO_LABELS = str(Path.cwd() / "label_map.pbtxt")
         self.category_index = label_map_util.create_category_index_from_labelmap(self.PATH_TO_LABELS,use_display_name=True)
 
         # Load pipeline config and build a detection model
@@ -46,7 +47,9 @@ class LabelDetection:
         return image[x1:x2, y1:y2]
 
     def detect_label(self, image, debug = False):
-        min_thresh = 0.4
+        min_thresh = 0.1
+        top_score = 0
+        top_boxes = []
 
         # process the input image and convert to tensor
         input_tensor = self.preprocess_image(image)
@@ -62,11 +65,6 @@ class LabelDetection:
 
         # detection_classes should be ints.
         detections['detection_classes'] = detections['detection_classes'].astype(np.int64)
-
-        
-
-        top_score = 0
-        top_boxes = []
 
         # detections are ordered from greatest to least, so we only care about the first one
         if len(detections['detection_scores']) > 0 and detections['detection_scores'][0] >=min_thresh:
@@ -102,7 +100,7 @@ class LabelDetection:
 if __name__ == '__main__':
     wrapper = LabelDetection()
 
-    image_path = "test-images\\IMG_1153.jpg"
+    image_path = str(Path.cwd() / "test-images" / "butter.jpg")
     image = cv2.imread(image_path)
 
     detected_label = wrapper.detect_label(image, debug=True)
