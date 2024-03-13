@@ -1,74 +1,58 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Food Label Analyzer</title>
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
   </head>
   <body>
-    <h1>Food Label Analyzer</h1>
-    <p>
-      Welcome to the Food Label Analyzer. This tool helps you understand the
-      nutritional content of food products.
-    </p>
-    <h1>Webcam Capture</h1>
-    <video id="video" width="640" height="480" autoplay></video>
-    <div class="button-container">
-      <button id="capture">Capture Photo</button>
-      <button id="pause">Pause</button>
-      <button id="start">Start</button>
+    <div class="container text-center mt-5">
+      <h1 class="mb-3">Food Label Analyzer</h1>
+      <p class="mb-4">
+        Welcome to the Food Label Analyzer. This tool helps you understand the
+        nutritional content of food products.
+      </p>
+      <h2 class="mb-3">Webcam Capture</h2>
+      <!-- Flex container to center video and canvas -->
+      <div class="d-flex justify-content-center mb-3">
+        <video
+          id="video"
+          width="640"
+          height="480"
+          class="mb-3 rounded"
+          style="display: none"
+        ></video>
+        <canvas
+          id="canvas"
+          width="640"
+          height="480"
+          class="mb-3 rounded"
+          style="display: none"
+        ></canvas>
+      </div>
+      <div class="button-container mb-3">
+        <button id="capture" class="btn btn-primary mr-2" style="display: none">
+          Capture Photo
+        </button>
+        <button id="retake" class="btn btn-info mr-2" style="display: none">
+          Take Another Photo
+        </button>
+        <button id="start" class="btn btn-success mr-2">Start</button>
+        <button id="pause" class="btn btn-secondary" style="display: none">
+          Pause
+        </button>
+      </div>
     </div>
-    <canvas id="canvas" width="640" height="480"></canvas>
-    <script>
-      const video = document.getElementById("video");
-      const canvas = document.getElementById("canvas");
-      const context = canvas.getContext("2d");
-      const captureButton = document.getElementById("capture");
-      const pauseButton = document.getElementById("pause");
-      const startButton = document.getElementById("start");
-
-      let stream = null;
-
-      // Function to start the video stream
-      function startVideo() {
-        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-          navigator.mediaDevices
-            .getUserMedia({ video: true })
-            .then(function (mediaStream) {
-              stream = mediaStream;
-              video.srcObject = stream;
-              video.play();
-            })
-            .catch(function (err) {
-              console.log("An error occurred: " + err);
-            });
-        }
-      }
-
-      // Initial call to start video
-      startVideo();
-
-      // Capture the photo
-      captureButton.addEventListener("click", function () {
-        context.drawImage(video, 0, 0, 640, 480);
-      });
-
-      // Pause (stop) the video stream
-      pauseButton.addEventListener("click", function () {
-        if (stream) {
-          stream.getTracks().forEach((track) => track.stop());
-          video.srcObject = null;
-          context.clearRect(0, 0, canvas.width, canvas.height);
-          // Display a message or alert here if you want to guide users to reset permissions manually
-        }
-      });
-
-      // Start (play) the video stream
-      startButton.addEventListener("click", function () {
-        startVideo(); // Re-acquire the webcam stream
-      });
-    </script>
+    <script src="{% static 'js/app.js' %}"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
   </body>
 </html>

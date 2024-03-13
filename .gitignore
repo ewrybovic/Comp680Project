@@ -156,3 +156,6 @@ cython_debug/
 # Tensorflow data models
 *.data-00000-of-00001
 *.tflite
+
+# python virtual env
+myvenv/
