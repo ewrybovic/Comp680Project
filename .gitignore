@@ -159,3 +159,10 @@ image_np_with_detections.png
 # Tensorflow data models
 *.data-00000-of-00001
 *.tflite
+
+# python virtual env
+myvenv/
+
+# server uploads
+uploads/
+!uploads/.gitkeep

@@ -4,6 +4,7 @@ Required Libraries
     OpenCV: pip install opencv-python
     Tensorflow: pip install tensorflow(If on windows, you need python 3.11)
     pytesseract: follow instructions(https://www.educative.io/answers/how-to-extract-text-from-an-image-in-python)
+    Django: pip install django
 
 To label training images:
     pip install labelImg
@@ -22,3 +23,6 @@ To run the LabelDetection
     Download the checkpoint data from google drive: https://drive.google.com/file/d/1siIss2n_vdZxqwwEaeoKTOfXV-gXBqI5/view?usp=drive_link
     Put the data into LabelDetectionModel\checkpoint
     
+To run the website
+    Navigate to the "FoodLabelProcessor" directory
+    Open cmd and run "python manage.py runserver"
