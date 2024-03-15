@@ -12,23 +12,18 @@ from object_detection.builders import model_builder
 from object_detection.utils import config_util
 
 class LabelDetection:
-    def __init__(self) -> None:
-        
-        # TODO fix this, when running from view.py the CWD is different
-        self.PATH_TO_CFG =  "D:\\projects\\Comp680Project\\LabelDetectionModel\\pipeline.config"
-        self.PATH_TO_CKPT = "D:\\projects\\Comp680Project\\LabelDetectionModel\\checkpoint\\ckpt-3"
-        self.PATH_TO_LABELS = "D:\\projects\\Comp680Project\\LabelDetectionModel\\label_map.pbtxt"
+    def __init__(self, PATH_TO_CFG: str, PATH_TO_CKPT: str, PATH_TO_LABELS: str) -> None:
 
-        self.category_index = label_map_util.create_category_index_from_labelmap(self.PATH_TO_LABELS,use_display_name=True)
+        self.category_index = label_map_util.create_category_index_from_labelmap(PATH_TO_LABELS,use_display_name=True)
 
         # Load pipeline config and build a detection model
-        configs = config_util.get_configs_from_pipeline_file(self.PATH_TO_CFG)
+        configs = config_util.get_configs_from_pipeline_file(PATH_TO_CFG)
         model_config = configs['model']
         self.detection_model = model_builder.build(model_config=model_config, is_training=False)
 
         # Restore checkpoint
         ckpt = tf.compat.v2.train.Checkpoint(model=self.detection_model)
-        ckpt.restore(self.PATH_TO_CKPT).expect_partial()
+        ckpt.restore(PATH_TO_CKPT).expect_partial()
     
     def preprocess_image(self, image):
         # Convert to tensor
@@ -77,7 +72,9 @@ class LabelDetection:
         print(top_boxes)
         print(len(top_boxes))
 
-        cropped_image = self.crop_image(image, top_boxes)
+        cropped_image = None
+        if len(top_boxes) != 0:
+            cropped_image = self.crop_image(image, top_boxes)
 
         if debug:
             label_id_offset = 1
@@ -97,12 +94,17 @@ class LabelDetection:
             plt.imshow(cv2.cvtColor(image_np_with_detections, cv2.COLOR_BGR2RGB))
             plt.savefig("image_np_with_detections")
 
-            cv2.imwrite("cropped_image.jpg", cropped_image)
+            if cropped_image != None:
+                cv2.imwrite("cropped_image.jpg", cropped_image)
 
         return cropped_image
         
 if __name__ == '__main__':
-    wrapper = LabelDetection()
+    CFG = Path(Path.cwd(), "pipeline.config")
+    CKPT = Path(Path.cwd(), "checkpoint", "ckpt-3")
+    LABELS = Path(Path.cwd(), "label_map.pbtxt")
+
+    wrapper = LabelDetection(CFG, CKPT, LABELS)
 
     image_path = str(Path.cwd() / "test-images" / "butter.jpg")
     image = cv2.imread(image_path)

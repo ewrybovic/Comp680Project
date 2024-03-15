@@ -21,6 +21,7 @@ class LabelReader:
             "Saturated Fat",
             "Trans Fat",
             "Polyunsaturated Fat",
+            "Cholesterol",
             "Sodium",
             "Total Carbohydrate",
             "Dietary Fiber"
@@ -52,11 +53,11 @@ class LabelReader:
     def read_label(self, image: numpy.ndarray, debug=False) -> dict:
 
         # Do some preprocessing
-        '''gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        thr = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY_INV, 15, 22)
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        thr = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY,11,2)
         
         if debug:
-            cv2.imwrite("processed_image.jpg", thr)'''
+            cv2.imwrite("processed_image.jpg", thr)
 
         label_data = self.process_text(pytesseract.image_to_string(image))
         print(label_data)

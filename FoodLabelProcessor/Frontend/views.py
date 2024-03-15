@@ -7,6 +7,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 from django.shortcuts import redirect
 from django.shortcuts import render
+from pathlib import Path
 
 # To import local scripts in seperate folders
 import sys
@@ -15,7 +16,11 @@ sys.path.append("..")
 from LabelDetectionModel import LabelDetection
 from LabelReader import LabelReader
 
-label_detection = LabelDetection()
+CFG = Path(Path.cwd().parent, "LabelDetectionModel","pipeline.config")
+CKPT = Path(Path.cwd().parent, "LabelDetectionModel","checkpoint", "ckpt-3")
+LABELS = Path(Path.cwd().parent, "LabelDetectionModel", "label_map.pbtxt")
+
+label_detection = LabelDetection(CFG, CKPT, LABELS)
 label_reader = LabelReader(is_Windows=True)
 
 def home(request):
@@ -39,8 +44,12 @@ def analyze_image(request):
         
         cv2_image = cv2.imread(save_path)
         cropped_image = label_detection.detect_label(cv2_image, debug=True)
-        label_data = label_reader.read_label(cropped_image, debug=True)
-        print(label_data)
+        
+        if cropped_image != None:
+            label_data = label_reader.read_label(cropped_image, debug=True)
+            print(label_data)
+        else:
+            print("No label found")
 
         # Store the image path in the session
         request.session['uploaded_image_path'] = os.path.join('uploads', image.name)
