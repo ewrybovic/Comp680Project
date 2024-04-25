@@ -12,21 +12,22 @@ class LabelReader:
             pytesseract.tesseract_cmd = path_to_exe
 
     def process_text(self, text: str) -> dict:
-        text = text.splitlines()
+        text = text.lower().splitlines()
         print(text)
         label_data = {}
 
-        items_to_find = ["Calories",
-            "Total Fat",
-            "Saturated Fat",
-            "Trans Fat",
-            "Polyunsaturated Fat",
-            "Cholesterol",
-            "Sodium",
-            "Total Carbohydrate",
-            "Dietary Fiber"
-            "Total Sugars",
-            "Protein"]
+        items_to_find = ["calories",
+            "total fat",
+            "saturated fat",
+            "trans fat",
+            "polyunsaturated fat",
+            "monounsaturated fat",
+            "cholesterol",
+            "sodium",
+            "total carbohydrate",
+            "dietary fiber",
+            "total sugars",
+            "protein"]
 
         # This is so unoptimized, but I have a kid and a job lol
         for line in text:

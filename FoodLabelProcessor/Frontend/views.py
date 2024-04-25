@@ -45,7 +45,7 @@ def analyze_image(request):
         cv2_image = cv2.imread(save_path)
         cropped_image = label_detection.detect_label(cv2_image, debug=True)
         
-        if cropped_image != None:
+        if len(cropped_image) > 0:
             label_data = label_reader.read_label(cropped_image, debug=True)
             print(label_data)
         else:
