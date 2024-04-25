@@ -12,33 +12,42 @@ class LabelReader:
             pytesseract.tesseract_cmd = path_to_exe
 
     def process_text(self, text: str) -> dict:
-        text = text.splitlines()
+        text = text.lower().splitlines()
+        print(text)
         label_data = {}
 
-        items_to_find = ["Calories",
-            "Total Fat",
-            "Saturated Fat",
-            "Trans Fat",
-            "Polyunsaturated Fat",
-            "Sodium",
-            "Total Carbohydrate",
-            "Dietary Fiber"
-            "Total Sugars",
-            "Protein"]
+        items_to_find = ["calories",
+            "total fat",
+            "saturated fat",
+            "trans fat",
+            "polyunsaturated fat",
+            "monounsaturated fat",
+            "cholesterol",
+            "sodium",
+            "total carbohydrate",
+            "dietary fiber",
+            "total sugars",
+            "protein"]
 
         # This is so unoptimized, but I have a kid and a job lol
         for line in text:
             for item in items_to_find:
                 if item in line:
-                    split = line.split(" ")
-                    num_words_in_item = len(item.split(" "))
 
-                    # Remove the mg or g from string, also gets o and O confused with 0
-                    value = int(split[num_words_in_item].replace('g','').replace('m','').replace('O','0'))
-                    label_data[item] = value
+                    print("Found: ", item, " in ", line)
 
-                    # Remove found entry from the list
-                    items_to_find.remove(item)
+                    try:
+                        split = line.split(" ")
+                        num_words_in_item = len(item.split(" "))
+
+                        # Remove the mg or g from string, also gets o and O confused with 0
+                        value = int(split[num_words_in_item].replace('g','').replace('m','').replace('O','0'))
+                        label_data[item] = value
+
+                        # Remove found entry from the list
+                        items_to_find.remove(item)
+                    except:
+                        print("Error parsing " , item)
 
         return label_data
 
@@ -46,12 +55,13 @@ class LabelReader:
 
         # Do some preprocessing
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        thr = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY_INV, 15, 22)
+        thr = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY,11,2)
         
         if debug:
             cv2.imwrite("processed_image.jpg", thr)
 
-        label_data = self.process_text(pytesseract.image_to_string(thr))
+        label_data = self.process_text(pytesseract.image_to_string(image))
+        print(label_data)
         return label_data
 
 

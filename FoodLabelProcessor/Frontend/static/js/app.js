@@ -9,10 +9,18 @@ const analyzeButton = document.getElementById("analyze");
 
 let stream = null;
 
+var constraints = { 
+  video: true,
+  video: {
+      width: { ideal: 4096 },
+      height: { ideal: 2160 },
+  }, 
+};
+
 function manageStream(isStarting) {
   if (isStarting) {
     navigator.mediaDevices
-      .getUserMedia({ video: true })
+      .getUserMedia(constraints)
       .then(function (mediaStream) {
         stream = mediaStream;
         video.srcObject = stream;
@@ -43,7 +51,7 @@ function manageStream(isStarting) {
 
 // Capture the photo and show it
 captureButton.addEventListener("click", function () {
-  context.drawImage(video, 0, 0, 640, 480);
+  context.drawImage(video, 0, 0, 1280, 720);
   video.style.display = "none";
   canvas.style.display = "block";
   captureButton.style.display = "none";

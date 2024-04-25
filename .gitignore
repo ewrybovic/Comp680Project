@@ -153,7 +153,7 @@ dmypy.json
 cython_debug/
 
 processed_image.jpg
-croppped_image.jpg
+cropped_image.jpg
 image_np_with_detections.png
 
 # Tensorflow data models
