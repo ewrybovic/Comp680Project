@@ -15,6 +15,7 @@ sys.path.append("..")
 
 from LabelDetectionModel import LabelDetection
 from LabelReader import LabelReader
+import NutritionEvaluator
 
 CFG = Path(Path.cwd().parent, "LabelDetectionModel","pipeline.config")
 CKPT = Path(Path.cwd().parent, "LabelDetectionModel","checkpoint", "ckpt-3")
@@ -45,8 +46,14 @@ def analyze_image(request):
         cv2_image = cv2.imread(save_path)
         cropped_image = label_detection.detect_label(cv2_image, debug=True)
         
+        # Check that LabelDetectionModel found a label
         if len(cropped_image) > 0:
             label_data = label_reader.read_label(cropped_image, debug=True)
+
+            # Check that LabelReader red the label properly
+            if len(label_data) > 0:
+                print(NutritionEvaluator.ScoreNutirion(label_data))
+
             print(label_data)
         else:
             print("No label found")
