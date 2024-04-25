@@ -53,6 +53,8 @@ def analyze_image(request):
             # Check that LabelReader red the label properly
             if len(label_data) > 0:
                 print(NutritionEvaluator.ScoreNutirion(label_data))
+            else:
+                print("No label data")
 
             print(label_data)
         else:

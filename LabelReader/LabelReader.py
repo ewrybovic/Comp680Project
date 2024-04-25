@@ -1,5 +1,6 @@
 import cv2
 import numpy
+import re
 
 from pathlib import Path
 from pytesseract import pytesseract
@@ -37,6 +38,10 @@ class LabelReader:
                     print("Found: ", item, " in ", line)
 
                     try:
+                        # Use regex to replace og and omg to 0g and 0mg
+                        re.sub(r'\bog\b', '0g', line)
+                        re.sub(r'\bomg\b', '0mg', line)
+
                         split = line.split(" ")
                         num_words_in_item = len(item.split(" "))
 
