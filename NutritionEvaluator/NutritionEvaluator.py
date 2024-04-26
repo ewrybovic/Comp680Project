@@ -25,16 +25,16 @@ def ScoreNutirion(nutrition_data: dict) -> {HealthScore, str}:
     }
 
     # If calories were not found we can't proceed
-    if 'calories' not in data.keys():
+    if 'calories' not in nutrition_data.keys():
         return {score, "No calories data"}
 
     # Find the percentage each macro contributes to the overall calories
-    if 'total fat' in data.keys():
-        marcro_percents['fat'] = (data['total fat'] * CAL_FAT_GRAM) / data['calories']
-    if 'total carbohydrate' in data.keys():
-        marcro_percents['carbs'] = (data['total carbohydrate'] * CAL_CARBS_GRAM) / data['calories']
-    if 'protein' in data.keys():
-        marcro_percents['protein'] = (data['protein'] * CAL_PROTEIN_GRAM) / data['calories']
+    if 'total fat' in nutrition_data.keys():
+        marcro_percents['fat'] = (nutrition_data['total fat'] * CAL_FAT_GRAM) / nutrition_data['calories']
+    if 'total carbohydrate' in nutrition_data.keys():
+        marcro_percents['carbs'] = (nutrition_data['total carbohydrate'] * CAL_CARBS_GRAM) / nutrition_data['calories']
+    if 'protein' in nutrition_data.keys():
+        marcro_percents['protein'] = (nutrition_data['protein'] * CAL_PROTEIN_GRAM) / nutrition_data['calories']
 
     print(marcro_percents)
 
@@ -53,7 +53,7 @@ def ScoreNutirion(nutrition_data: dict) -> {HealthScore, str}:
         score_string = "Even distribution of calories"
 
         # Check overall calories per serving
-        if data['calories'] > 200:
+        if nutrition_data['calories'] > 200:
             score = HealthScore.Neutral
             score_string = score_string + ", but too many calories per serving"
 

@@ -37,6 +37,11 @@ class LabelReader:
                     print("Found: ", item, " in ", line)
 
                     try:
+                        # Pytesseract will sometimes confuse the letter 9 with g so to solve
+                        # If no g is found in string but a 9 is found, replace the 9 with g
+                        if 'g' not in line and '9' in line:
+                            line = line.replace('9', 'g')
+
                         # Replace og and omg to 0g and 0mg
                         line = line.replace('og', '0g').replace('omg', '0mg')
 
@@ -60,10 +65,14 @@ class LabelReader:
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         thr = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY,11,2)
         
-        if debug:
-            cv2.imwrite("processed_image.jpg", thr)
+        # Sharpen image
+        kernel = numpy.array([[0,-1,0], [-1,5,-1], [0,-1,0]])
+        sharpen = cv2.filter2D(image, -1, kernel)
 
-        label_data = self.process_text(pytesseract.image_to_string(image))
+        if debug:
+            cv2.imwrite("processed_image.jpg", sharpen)
+
+        label_data = self.process_text(pytesseract.image_to_string(sharpen))
         print(label_data)
         return label_data
 
