@@ -38,7 +38,7 @@ def ScoreNutirion(nutrition_data: dict) -> {HealthScore, str}:
 
     print(marcro_percents)
 
-    # Compate the macro percents to see what if higher
+    # Compare the macro percents to see what if higher
     if marcro_percents['fat'] > marcro_percents['protein'] and marcro_percents['fat'] > marcro_percents['carbs']:
         score = HealthScore.Unhealthy
         score_string = "Too many calories come from fat"
@@ -52,8 +52,13 @@ def ScoreNutirion(nutrition_data: dict) -> {HealthScore, str}:
         score = HealthScore.Healthy
         score_string = "Even distribution of calories"
 
+        # Check overall calories per serving
+        if data['calories'] > 200:
+            score = HealthScore.Neutral
+            score_string = score_string + ", but too many calories per serving"
+
     return {score, score_string}
     
 if __name__ == '__main__':
-    data = {"calories": 136, "total fat" : 3, "saturated fat": 7, "total carbohydrate": 8, "protein":8}
+    data = {"calories": 255, "total fat" : 3, "saturated fat": 7, "total carbohydrate": 8, "protein":8}
     print(ScoreNutirion(data))
