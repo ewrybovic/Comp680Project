@@ -36,6 +36,8 @@ def ScoreNutirion(nutrition_data: dict) -> {HealthScore, str}:
     if 'protein' in data.keys():
         marcro_percents['protein'] = (data['protein'] * CAL_PROTEIN_GRAM) / data['calories']
 
+    print(marcro_percents)
+
     # Compate the macro percents to see what if higher
     if marcro_percents['fat'] > marcro_percents['protein'] and marcro_percents['fat'] > marcro_percents['carbs']:
         score = HealthScore.Unhealthy
@@ -46,9 +48,12 @@ def ScoreNutirion(nutrition_data: dict) -> {HealthScore, str}:
     elif marcro_percents['protein'] > marcro_percents['fat'] and marcro_percents['protein'] > marcro_percents['carbs']:
         score = HealthScore.Healthy
         score_string = "Good amount of protein"
+    else:
+        score = HealthScore.Healthy
+        score_string = "Even distribution of calories"
 
     return {score, score_string}
     
 if __name__ == '__main__':
-    data = {"calories": 136, "total fat" : 11, "saturated fat": 7, "total carbohydrate": 5, "protein":4}
+    data = {"calories": 136, "total fat" : 3, "saturated fat": 7, "total carbohydrate": 8, "protein":8}
     print(ScoreNutirion(data))
