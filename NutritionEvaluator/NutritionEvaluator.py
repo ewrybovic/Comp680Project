@@ -24,8 +24,6 @@ def ScoreNutirion(nutrition_data: dict) -> {HealthScore, str}:
         'protein': 0
     }
 
-    print(data)
-
     # If calories were not found we can't proceed
     if 'calories' not in data.keys():
         return {score, "No calories data"}
@@ -38,10 +36,19 @@ def ScoreNutirion(nutrition_data: dict) -> {HealthScore, str}:
     if 'protein' in data.keys():
         marcro_percents['protein'] = (data['protein'] * CAL_PROTEIN_GRAM) / data['calories']
 
-    print(marcro_percents)
+    # Compate the macro percents to see what if higher
+    if marcro_percents['fat'] > marcro_percents['protein'] and marcro_percents['fat'] > marcro_percents['carbs']:
+        score = HealthScore.Unhealthy
+        score_string = "Too many calories come from fat"
+    elif marcro_percents['carbs'] > marcro_percents['protein'] and marcro_percents['carbs'] > marcro_percents['fat']:
+        score = HealthScore.Unhealthy
+        score_string = "Too many calories come from carbs"
+    elif marcro_percents['protein'] > marcro_percents['fat'] and marcro_percents['protein'] > marcro_percents['carbs']:
+        score = HealthScore.Healthy
+        score_string = "Good amount of protein"
 
     return {score, score_string}
     
 if __name__ == '__main__':
-    data = {"calories": 100, "total fat" : 11, "saturated fat": 7, "total carbohydrate": 0, "protein":0}
+    data = {"calories": 136, "total fat" : 11, "saturated fat": 7, "total carbohydrate": 5, "protein":4}
     print(ScoreNutirion(data))
