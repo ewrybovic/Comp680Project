@@ -1,6 +1,5 @@
 import cv2
 import numpy
-import re
 
 from pathlib import Path
 from pytesseract import pytesseract
@@ -38,9 +37,8 @@ class LabelReader:
                     print("Found: ", item, " in ", line)
 
                     try:
-                        # Use regex to replace og and omg to 0g and 0mg
-                        re.sub(r'\bog\b', '0g', line)
-                        re.sub(r'\bomg\b', '0mg', line)
+                        # Replace og and omg to 0g and 0mg
+                        line = line.replace('og', '0g').replace('omg', '0mg')
 
                         split = line.split(" ")
                         num_words_in_item = len(item.split(" "))
@@ -58,7 +56,7 @@ class LabelReader:
 
     def read_label(self, image: numpy.ndarray, debug=False) -> dict:
 
-        # Do some preprocessing
+        # Do some preprocessing, #TODO add sharpening
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         thr = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY,11,2)
         
