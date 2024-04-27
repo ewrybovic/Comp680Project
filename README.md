@@ -1,7 +1,7 @@
 # Comp680Project
 
 Required Libraries
-    OpenCV: pip install opencv-python
+    OpenCV: pip install opencv-contrib-python
     Tensorflow: pip install tensorflow(If on windows, you need python 3.11)
     pytesseract: follow instructions(https://www.educative.io/answers/how-to-extract-text-from-an-image-in-python)
     Django: pip install django
@@ -18,6 +18,8 @@ Tensorflow Object model used:
 
     This model compresses the image to 320x320, has a good balance between speed and accuracy
     need numpy 1.17.4
+
+OpenCV SuperResolution model(ESPCN_x3.pb) provided by: https://learnopencv.com/super-resolution-in-opencv/
 
 To run the LabelDetection
     Download the checkpoint data from google drive: https://drive.google.com/file/d/1siIss2n_vdZxqwwEaeoKTOfXV-gXBqI5/view?usp=drive_link

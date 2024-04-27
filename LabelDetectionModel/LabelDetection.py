@@ -94,7 +94,7 @@ class LabelDetection:
             plt.imshow(cv2.cvtColor(image_np_with_detections, cv2.COLOR_BGR2RGB))
             plt.savefig("image_np_with_detections")
 
-            if cropped_image != None:
+            if len(cropped_image) > 0:
                 cv2.imwrite("cropped_image.jpg", cropped_image)
 
         return cropped_image
