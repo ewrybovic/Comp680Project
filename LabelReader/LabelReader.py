@@ -1,5 +1,6 @@
 import cv2
 import numpy
+import re
 
 from pathlib import Path
 from pytesseract import pytesseract
@@ -39,25 +40,38 @@ class LabelReader:
             "protein"]
 
         # This is so unoptimized, but I have a kid and a job lol
-        for line in text:
+        for _, line in enumerate(text):
+            # Clean the string to only include alphanumeric, % and spaces.
+            line = re.sub(r'[^a-zA-Z0-9% ]', '', line)
+
+            # Remove the trailing space
+            line = line.rstrip()
+
             for item in items_to_find:
                 if item in line:
-
-                    print("Found: ", item, " in ", line)
+                    print(f"Found: {item} in \"{line}\"")
 
                     try:
                         # Replace og and omg to 0g and 0mg
                         line = line.replace('og', '0g').replace('omg', '0mg')
 
                         split = line.split(" ")
-                        num_words_in_item = len(split)
-                        str_amount = split[num_words_in_item]
+                        num_words_in_item = len(line.split(" "))
+
+                        # don't want the % Daily value, want the grams/miligrams
+                        if '%' in line:
+                            str_amount = split[num_words_in_item - 2]
+                        else: 
+                            str_amount = split[num_words_in_item - 1]
 
                         # Pytesseract will sometimes confuse the letter 9 with g so to solve
                         # If no g is found in string but a 9 is found, replace the 9 with g
                         if 'g' not in str_amount and '9' in str_amount:
                             str_amount = str_amount.replace('9', 'g')
                         
+                        # PYtesseract will sometimes not read the space (ie if its "Fat 7g" it can sometimes be read as "Fat7g" so I remove all text except g)
+                        str_amount = re.sub(r'[^g\d]', '', str_amount)
+
                         print(str_amount)
 
                         # Remove the mg or g from string, also gets o and O confused with 0
@@ -66,8 +80,9 @@ class LabelReader:
 
                         # Remove found entry from the list
                         items_to_find.remove(item)
-                    except:
+                    except Exception as e:
                         print("Error parsing " , item)
+                        print(e)
 
         return label_data
 
@@ -85,8 +100,8 @@ class LabelReader:
 
         # Do some preprocessing
         if threshold:
-            gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-            image = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY,11,2)
+            image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+            #(_, image) = cv2.threshold(gray, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
 
         if debug:
             cv2.imwrite("processed_image.jpg", image)
@@ -103,5 +118,5 @@ if __name__ == '__main__':
     image_path = str(Path.cwd() / "test_image" / "cropped_image.jpg")
     label_img = cv2.imread(image_path)
 
-    text = reader.read_label(label_img, upres=True,sharpen=True, threshold=False, debug=True)
+    text = reader.read_label(label_img, upres=True,sharpen=True, threshold=True, debug=True)
     print(text)

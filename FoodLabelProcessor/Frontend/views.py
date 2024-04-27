@@ -48,13 +48,16 @@ def analyze_image(request):
         
         # Check that LabelDetectionModel found a label
         if len(cropped_image) > 0:
-            label_data = label_reader.read_label(cropped_image, threshold=False, debug=True)
+            label_data = label_reader.read_label(cropped_image, debug=True)
 
             # Check that LabelReader red the label properly
             if len(label_data) > 0:
                 print(NutritionEvaluator.ScoreNutirion(label_data))
             else:
                 print("No label data")
+
+            # override the uploaded image with the cropped image
+            cv2.imwrite(save_path, cropped_image)
 
             print(label_data)
         else:
