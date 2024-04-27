@@ -69,7 +69,7 @@ class LabelReader:
                         if 'g' not in str_amount and '9' in str_amount:
                             str_amount = str_amount.replace('9', 'g')
                         
-                        # PYtesseract will sometimes not read the space (ie if its "Fat 7g" it can sometimes be read as "Fat7g" so I remove all text except g)
+                        # PYtesseract will sometimes not read the space (ie if its "Fat 7g" it can sometimes be read as "Fat7g" so I remove all letters except g
                         str_amount = re.sub(r'[^g\d]', '', str_amount)
 
                         print(str_amount)
