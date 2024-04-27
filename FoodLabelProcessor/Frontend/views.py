@@ -22,7 +22,7 @@ CKPT = Path(Path.cwd().parent, "LabelDetectionModel","checkpoint", "ckpt-3")
 LABELS = Path(Path.cwd().parent, "LabelDetectionModel", "label_map.pbtxt")
 
 label_detection = LabelDetection(CFG, CKPT, LABELS)
-label_reader = LabelReader(is_Windows=True)
+label_reader = LabelReader(path_to_superres_model=r"../LabelReader/ESPCN_x3.pb", is_Windows=True)
 
 def home(request):
     return render(request, 'Frontend/home.html')
@@ -48,7 +48,7 @@ def analyze_image(request):
         
         # Check that LabelDetectionModel found a label
         if len(cropped_image) > 0:
-            label_data = label_reader.read_label(cropped_image, debug=True)
+            label_data = label_reader.read_label(cropped_image, threshold=False, debug=True)
 
             # Check that LabelReader red the label properly
             if len(label_data) > 0:

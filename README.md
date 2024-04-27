@@ -19,6 +19,8 @@ Tensorflow Object model used:
     This model compresses the image to 320x320, has a good balance between speed and accuracy
     need numpy 1.17.4
 
+OpenCV SuperResolution model(ESPCN_x3.pb) provided by: https://learnopencv.com/super-resolution-in-opencv/
+
 To run the LabelDetection
     Download the checkpoint data from google drive: https://drive.google.com/file/d/1siIss2n_vdZxqwwEaeoKTOfXV-gXBqI5/view?usp=drive_link
     Put the data into LabelDetectionModel\checkpoint

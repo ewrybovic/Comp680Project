@@ -11,10 +11,14 @@ class LabelReader:
             path_to_exe = 'D:\\Program Files\\Tesseract-OCR\\tesseract.exe'
             pytesseract.tesseract_cmd = path_to_exe
         
+        print("Loading OpenCV SuperRes model")
+
         # Load the SuperResoultion model for opencv
         self.superres = cv2.dnn_superres.DnnSuperResImpl.create()
         self.superres.readModel(path_to_superres_model)
-        self.superres.setModel('edsr', 2)
+        self.superres.setModel('espcn', 3)
+
+        print("Model loaded")
 
     def process_text(self, text: str) -> dict:
         text = text.lower().splitlines()
@@ -46,15 +50,15 @@ class LabelReader:
                         line = line.replace('og', '0g').replace('omg', '0mg')
 
                         split = line.split(" ")
-                        num_words_in_item = len(item.split(" "))
+                        num_words_in_item = len(split)
                         str_amount = split[num_words_in_item]
-
-                        print(str_amount)
 
                         # Pytesseract will sometimes confuse the letter 9 with g so to solve
                         # If no g is found in string but a 9 is found, replace the 9 with g
                         if 'g' not in str_amount and '9' in str_amount:
-                            line = line.replace('9', 'g')
+                            str_amount = str_amount.replace('9', 'g')
+                        
+                        print(str_amount)
 
                         # Remove the mg or g from string, also gets o and O confused with 0
                         value = int(str_amount.replace('g','').replace('m','').replace('O','0'))
@@ -75,7 +79,9 @@ class LabelReader:
 
         # Super res the image
         if upres:
+            print("Supersampling the image")
             image = self.superres.upsample(image)
+            print("Done supersampling")
 
         # Do some preprocessing
         if threshold:
@@ -92,7 +98,7 @@ class LabelReader:
 if __name__ == '__main__':
 
     # The way pytesseract has to be installed in windows makes windows point to the exe, but not for MAC/Linux
-    reader = LabelReader(path_to_superres_model="EDSR_x2.pb",is_Windows=True)
+    reader = LabelReader(path_to_superres_model="ESPCN_x3.pb",is_Windows=True)
 
     image_path = str(Path.cwd() / "test_image" / "cropped_image.jpg")
     label_img = cv2.imread(image_path)
