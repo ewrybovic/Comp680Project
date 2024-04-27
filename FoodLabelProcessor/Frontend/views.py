@@ -28,8 +28,14 @@ def home(request):
     return render(request, 'Frontend/home.html')
 
 def results(request):
+    found_label_data = request.session.get('found_label_data')
     uploaded_image_path = request.session.get('uploaded_image_path')
+    nutrition_eval_score = request.session.get('nutrition_eval_score')
+    nutrition_eval_reason = request.session['nutrition_eval_reason']
     return render(request, 'Frontend/results.html', {'uploaded_image_path': uploaded_image_path,
+                                                     'found_label_data' : found_label_data,
+                                                     'nutrition_eval_score' : nutrition_eval_score,
+                                                     'nutrition_eval_reason' : nutrition_eval_reason,
                                                      'MEDIA_URL': settings.MEDIA_URL,})
 
 @csrf_exempt
@@ -48,11 +54,16 @@ def analyze_image(request):
         
         # Check that LabelDetectionModel found a label
         if len(cropped_image) > 0:
-            label_data = label_reader.read_label(cropped_image, debug=True)
+            label_data = label_reader.read_label(cropped_image, threshold=False, debug=True)
 
             # Check that LabelReader red the label properly
             if len(label_data) > 0:
-                print(NutritionEvaluator.ScoreNutirion(label_data))
+                score, reason = NutritionEvaluator.ScoreNutirion(label_data)
+
+                # Store the found label data to session
+                request.session['found_label_data'] = label_data
+                request.session['nutrition_eval_score'] = str(score.name)
+                request.session['nutrition_eval_reason'] = reason
             else:
                 print("No label data")
 

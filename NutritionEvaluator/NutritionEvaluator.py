@@ -57,8 +57,16 @@ def ScoreNutirion(nutrition_data: dict) -> {HealthScore, str}:
             score = HealthScore.Neutral
             score_string = score_string + ", but too many calories per serving"
 
-    return {score, score_string}
+    if 'saturated fat' in nutrition_data.keys():
+        sat_fat_grams = nutrition_data['saturated fat']
+        if sat_fat_grams > 3:
+            score = HealthScore.Unhealthy
+            score_string = score_string + " lots of saturated fat be careful of excess consumption of saturdated fat"
+
+    return score, score_string
     
 if __name__ == '__main__':
     data = {"calories": 255, "total fat" : 3, "saturated fat": 7, "total carbohydrate": 8, "protein":8}
-    print(ScoreNutirion(data))
+    score, reason = ScoreNutirion(data)
+    print(score.name)
+    print(reason)
