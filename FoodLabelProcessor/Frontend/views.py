@@ -65,7 +65,9 @@ def analyze_image(request):
                 request.session['nutrition_eval_score'] = str(score.name)
                 request.session['nutrition_eval_reason'] = reason
             else:
-                print("No label data")
+                request.session['found_label_data'] = "No label data"
+                request.session['nutrition_eval_score'] = 'N/A'
+                request.session['nutrition_eval_reason'] = 'N/A'
 
             # override the uploaded image with the cropped image
             cv2.imwrite(save_path, cropped_image)
