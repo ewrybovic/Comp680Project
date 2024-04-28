@@ -14,7 +14,9 @@
   <body>
     <div class="container text-center mt-5">
       <h1>Image Analysis Results</h1>
-      <p>Debug path: {{ uploaded_image_path }}</p>
+      <p>Found Label Data: {{ found_label_data }}</p>
+      <p>Nutritional Evaluation: {{ nutrition_eval_score }}</p>
+      <p>Reason: {{ nutrition_eval_reason }}</p>
       <!-- <img src="/media/uploads/capture.jpg" alt="Uploaded Image" /> -->
       {% if uploaded_image_path %}
       <img
