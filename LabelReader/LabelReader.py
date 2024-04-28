@@ -29,20 +29,23 @@ class LabelReader:
         items_to_find = ["calories",
             "total fat",
             "saturated fat",
+            "saturatod fat",
             "trans fat",
             "polyunsaturated fat",
             "monounsaturated fat",
             "cholesterol",
             "sodium",
             "total carbohydrate",
+            "total carbohydrato",
             "dietary fiber",
             "total sugars",
-            "protein"]
+            "protein",
+            "protoin"] # PyTesseract gets this confused sometimes
 
         # This is so unoptimized, but I have a kid and a job lol
         for _, line in enumerate(text):
             # Clean the string to only include alphanumeric, % and spaces.
-            line = re.sub(r'[^a-zA-Z0-9% ]', '', line)
+            line = re.sub(r'[^a-zA-Z0-9%. ]', '', line)
 
             # Remove the trailing space
             line = line.rstrip()
@@ -50,6 +53,14 @@ class LabelReader:
             for item in items_to_find:
                 if item in line:
                     print(f"Found: {item} in \"{line}\"")
+
+                    # PyTesseract can think the e is an o
+                    if item is "protoin":
+                        item = "protein"
+                    elif item is "total carbohydrato":
+                        item = "total carbohydrate"
+                    elif item is "saturatod fat":
+                        item = "saturated fat"
 
                     try:
                         # Replace og and omg to 0g and 0mg
@@ -70,12 +81,12 @@ class LabelReader:
                             str_amount = str_amount.replace('9', 'g')
                         
                         # PYtesseract will sometimes not read the space (ie if its "Fat 7g" it can sometimes be read as "Fat7g" so I remove all letters except g
-                        str_amount = re.sub(r'[^g\d]', '', str_amount)
+                        str_amount = re.sub(r'[^g\d.]', '', str_amount)
 
                         print(str_amount)
 
                         # Remove the mg or g from string, also gets o and O confused with 0
-                        value = int(str_amount.replace('g','').replace('m','').replace('O','0'))
+                        value = float(str_amount.replace('g','').replace('m','').replace('O','0'))
                         label_data[item] = value
 
                         # Remove found entry from the list
