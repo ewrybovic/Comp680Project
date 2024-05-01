@@ -166,3 +166,4 @@ myvenv/
 # server uploads
 uploads/
 !uploads/.gitkeep
+LabelDetectionModel/checkpoint/backup-ckpt-3.index
