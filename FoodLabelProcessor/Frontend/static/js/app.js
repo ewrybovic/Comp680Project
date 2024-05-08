@@ -9,12 +9,12 @@ const analyzeButton = document.getElementById("analyze");
 
 let stream = null;
 
-var constraints = { 
+var constraints = {
   video: true,
   video: {
-      width: { ideal: 4096 },
-      height: { ideal: 2160 },
-  }, 
+    width: { ideal: 4096 },
+    height: { ideal: 2160 },
+  },
 };
 
 function manageStream(isStarting) {
@@ -86,6 +86,10 @@ window.onload = function () {
 
 // Handle Analyze Label button click
 document.getElementById("analyze").addEventListener("click", function () {
+  document.getElementById("analyzeSpinner").style.display = "inline-block";
+
+  // Disable the button
+  this.disabled = true;
   canvas.toBlob(function (blob) {
     const formData = new FormData();
     formData.append("image", blob, "capture.jpg");
