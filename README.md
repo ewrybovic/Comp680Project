@@ -27,4 +27,7 @@ To run the LabelDetection
     
 To run the website
     Navigate to the "FoodLabelProcessor" directory
-    Open cmd and run "python manage.py runserver"
+    Open cmd and run:
+        python manage.py makemigrations
+        python manage.py migrate
+        python manage.py runserver

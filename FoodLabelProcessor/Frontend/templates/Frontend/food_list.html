@@ -1,0 +1,26 @@
+{% extends 'Frontend/base.html' %}
+
+{% block content %}
+
+{% load static %}
+<title>Nutritional Summary</title>
+<center><h1>Nutritional Summary</h1>
+</center>
+{% for food in food_list%}
+<strong>{{ food }}</strong>
+
+    <ul>
+    <li>Calories: {{ food.calories }}</li>
+    <li>Total Fat: {{ food.totalFat }}g</li>
+    <li>Saturated Fat: {{ food.saturatedFat }}g</li>
+    <li>Trans Fat: {{ food.transFat }}g</li>
+    <li>Sodium: {{ food.sodium }}mg</li>
+    <li>Total Carbohydrates: {{ food.totalCarb }}g</li>
+    <li>Added Sugar: {{ food.addedSugars }}g</li>
+    <li>Protein: {{ food.protein }}g</li>
+
+  </ul>
+  {% endfor %}
+
+
+{% endblock %}
